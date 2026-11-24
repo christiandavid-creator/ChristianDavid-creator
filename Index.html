@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>David — Fullstack Developer & UI/UX Architect (Portfolio & Admin CMS)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons for Badges & Navigation -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Alpine.js for App State Management -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            figma: {
+              blue: '#0D99FF',
+              purple: '#9747FF',
+              pink: '#F24E1E',
+              green: '#14AE5C',
+              dark: '#0F172A',
+              cardDark: '#1E293B',
+              borderDark: '#334155'
+            }
+          },
+          boxShadow: {
+            'figma-glow': '0 10px 30px -5px rgba(13, 153, 255, 0.15)',
+            'card-hover': '0 20px 35px -10px rgba(15, 23, 42, 0.08)',
+            'soft-lg': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
+    .dark ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0D99FF;
+    }
+
+    /* Clean Figma Canvas Dot Pattern */
+    .bg-grid-pattern {
+      background-size: 28px 28px;
+      background-image: radial-gradient(circle, rgba(15, 23, 42, 0.08) 1.2px, transparent 1.2px);
+    }
+    .dark .bg-grid-pattern {
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body 
+  x-data="portfolioApp()" 
+  x-init="initApp()"
+  :class="darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50/70 text-slate-800'"
+  class="font-sans antialiased selection:bg-figma-blue selection:text-white min-h-screen transition-colors duration-300 relative bg-grid-pattern overflow-x-hidden"
+>
+
+  <!-- ========================================================================= -->
+  <!-- 1. PUBLIC PORTFOLIO VIEW                                                  -->
+  <!-- ========================================================================= -->
+  <div x-show="viewMode === 'portfolio'" class="min-h-screen flex flex-col justify-between">
+    
+    <header class="sticky top-0 z-40 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/80 transition-all duration-300 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <!-- Brand Logo / Badge -->
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-figma-blue via-figma-purple to-figma-pink p-[2px] shadow-md transition-transform group-hover:scale-105">
+            <div class="w-full h-full bg-white dark:bg-slate-900 rounded-[10px] flex items-center justify-center font-extrabold text-transparent bg-clip-text bg-gradient-to-tr from-figma-blue to-figma-purple text-lg tracking-wider" x-text="profile.name.charAt(0)">
+              D
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-bold text-base leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span x-text="profile.name">David</span>
+              <span class="inline-block w-2 h-2 rounded-full bg-figma-green animate-pulse" :title="profile.availableForWork ? 'Tersedia untuk Proyek Baru' : 'Sedang Sibuk'"></span>
+            </span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium" x-text="profile.role">Fullstack Dev & Designer</span>
+          </div>
+        </a>
+
+        <!-- Public Navigation Links -->
+        <nav class="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-medium">
+          <a href="#projects" class="px-3.5 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:text-figma-blue transition">Proyek</a>
+          <a href="#skills" class="px-3.5 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:text-figma-blue transition">Keahlian</a>
+          <a href="#experience" class="px-3.5 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:text-figma-blue transition">Pengalaman</a>
+          <a href="#about" class="px-3.5 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:text-figma-blue transition">Tentang</a>
+          <a href="#contact" class="px-3.5 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:text-figma-blue transition">Kontak</a>
+        </nav>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Status Indicator Pill -->
+          <template x-if="profile.availableForWork">
+            <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              Siap Menerima Proyek
+            </div>
+          </template>
+
+          <!-- Theme Toggle Button -->
+          <button 
+            @click="toggleTheme()" 
+            class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition active:scale-95 shadow-sm"
+            :title="darkMode ? 'Beralih ke Light Mode' : 'Beralih ke Dark Mode'"
+          >
+            <i x-show="!darkMode" class="fa-solid fa-sun text-base text-amber-500"></i>
+            <i x-show="darkMode" class="fa-solid fa-moon text-base text-slate-200"></i>
+          </button>
+
+          <!-- Admin Portal Access Button -->
+          <button 
+            @click="openAdminPortal()" 
+            class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-900 text-white dark:bg-slate-800 hover:bg-slate-800 transition active:scale-95 shadow-sm text-xs font-semibold flex items-center gap-1.5"
+            title="Kelola Konten Portofolio"
+          >
+            <i class="fa-solid fa-user-gear text-figma-blue"></i>
+            <span class="hidden sm:inline">Admin</span>
+          </button>
+
+          <!-- CTA Contact Button -->
+          <a 
+            href="#contact" 
+            class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-figma-blue hover:bg-blue-600 text-white shadow-md shadow-figma-blue/20 hover:scale-[1.02] active:scale-98 transition-all duration-200"
+          >
+            <span>Diskusi Proyek</span>
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+          </a>
+
+          <!-- Mobile Menu Toggle Button -->
+          <button 
+            @click="mobileMenuOpen = !mobileMenuOpen" 
+            class="md:hidden p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shadow-sm"
+          >
+            <i :class="mobileMenuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars-staggered'" class="text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Dropdown Navigation Menu -->
+      <div 
+        x-show="mobileMenuOpen" 
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-4"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-4"
+        class="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl px-4 py-4 space-y-2 shadow-xl"
+      >
+        <a @click="mobileMenuOpen = false" href="#projects" class="block px-4 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-700 dark:text-slate-200">
+          <i class="fa-solid fa-layer-group w-6 text-figma-blue"></i> Proyek
+        </a>
+        <a @click="mobileMenuOpen = false" href="#skills" class="block px-4 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-700 dark:text-slate-200">
+          <i class="fa-solid fa-code w-6 text-figma-purple"></i> Keahlian
+        </a>
+        <a @click="mobileMenuOpen = false" href="#experience" class="block px-4 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-700 dark:text-slate-200">
+          <i class="fa-solid fa-briefcase w-6 text-figma-pink"></i> Pengalaman
+        </a>
+        <a @click="mobileMenuOpen = false" href="#about" class="block px-4 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-700 dark:text-slate-200">
+          <i class="fa-solid fa-user-astronaut w-6 text-emerald-500"></i> Tentang <span x-text="profile.name"></span>
+        </a>
+        <a @click="mobileMenuOpen = false" href="#contact" class="block px-4 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-700 dark:text-slate-200">
+          <i class="fa-solid fa-envelope w-6 text-amber-500"></i> Kontak
+        </a>
+        <button @click="mobileMenuOpen = false; openAdminPortal()" class="w-full text-left px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium text-slate-900 dark:text-slate-100 flex items-center justify-between">
+          <span><i class="fa-solid fa-user-gear w-6 text-figma-blue"></i> Panel Admin CMS</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+    </header>
+
+    <section class="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
+      <!-- Ambient Blur Background Spheres -->
+      <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] bg-gradient-to-tr from-sky-200/40 via-purple-200/30 to-pink-100/30 dark:from-sky-900/20 dark:via-purple-900/15 dark:to-pink-900/15 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
+          
+          <!-- Hero Text Content -->
+          <div class="w-full lg:w-7/12 text-center lg:text-left space-y-6">
+            
+            <!-- Badge Header -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm backdrop-blur-md">
+              <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-figma-blue opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-figma-blue"></span>
+              </span>
+              <span class="text-xs font-semibold tracking-wide text-slate-700 dark:text-slate-300">
+                Figma Design Mindset • Clean Code Architecture
+              </span>
+            </div>
+
+            <!-- Dynamic Headline -->
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15]" x-html="profile.headline">
+              Mewujudkan Gagasan Menjadi <span class="text-transparent bg-clip-text bg-gradient-to-r from-figma-blue via-figma-purple to-figma-pink">Aplikasi Web Berkelas & Presisi.</span>
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed" x-text="profile.subheadline">
+              Halo! Saya David, seorang Fullstack Developer & Designer. Saya berfokus membangun aplikasi web interaktif, cepat, rapi, dan responsif dengan pengalaman antarmuka yang bersih.
+            </p>
+
+            <!-- Key Metrics Badges -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 py-2 max-w-lg mx-auto lg:mx-0">
+              <div class="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm text-center lg:text-left">
+                <div class="text-2xl sm:text-3xl font-extrabold text-figma-blue" x-text="profile.statsCompletedProjects">30+</div>
+                <div class="text-xs text-slate-500 font-medium mt-0.5">Proyek Selesai</div>
+              </div>
+              <div class="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm text-center lg:text-left">
+                <div class="text-2xl sm:text-3xl font-extrabold text-figma-purple" x-text="profile.statsSatisfaction">99%</div>
+                <div class="text-xs text-slate-500 font-medium mt-0.5">Kepuasan Klien</div>
+              </div>
+              <div class="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm text-center lg:text-left">
+                <div class="text-2xl sm:text-3xl font-extrabold text-figma-pink" x-text="profile.statsExperienceYears">4+</div>
+                <div class="text-xs text-slate-500 font-medium mt-0.5">Tahun Pengalaman</div>
+              </div>
+            </div>
+
+            <!-- Hero Action CTAs -->
+            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
+              <a 
+                href="#projects" 
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-figma-blue hover:bg-blue-600 text-white font-semibold text-sm shadow-lg shadow-figma-blue/20 hover:scale-[1.02] active:scale-98 transition duration-200"
+              >
+                <span>Lihat Showcase Proyek</span>
+                <i class="fa-solid fa-arrow-down-long text-xs"></i>
+              </a>
+
+              <button 
+                @click="copyEmail()" 
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-200 font-semibold text-sm shadow-sm transition duration-200"
+              >
+                <i :class="copiedEmail ? 'fa-solid fa-check text-emerald-600' : 'fa-regular fa-copy text-slate-400'"></i>
+                <span x-text="copiedEmail ? 'Email Tersalin!' : 'Salin Email ' + profile.name"></span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Hero Figma Canvas Mockup Frame -->
+          <div class="w-full lg:w-5/12 flex justify-center">
+            <div class="relative w-full max-w-md">
+              
+              <!-- Light/Dark Figma Window Canvas Frame -->
+              <div class="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xl relative overflow-hidden group">
+                
+                <!-- Window Toolbar Header -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 text-xs">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                  </div>
+                  <div class="font-mono text-[11px] text-slate-400" x-text="profile.name.toLowerCase() + '-workspace.fig'">david-workspace.fig</div>
+                  <div class="flex gap-2 text-slate-400">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <i class="fa-solid fa-magnifying-glass-plus"></i>
+                  </div>
+                </div>
+
+                <!-- Main Component Cards Mockup -->
+                <div class="mt-4 space-y-3 relative">
+                  <!-- Cursor Overlay -->
+                  <div class="absolute top-8 right-6 z-10 bg-figma-purple text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 animate-bounce">
+                    <i class="fa-solid fa-mouse-pointer text-[9px]"></i> <span x-text="profile.name"></span> (Editing)
+                  </div>
+
+                  <!-- Canvas Component 1 -->
+                  <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-dashed border-figma-blue/40 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-figma-blue/10 text-figma-blue flex items-center justify-center font-bold">
+                      <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-xs font-semibold text-slate-800 dark:text-slate-200">Design System Architecture</div>
+                      <div class="text-[11px] text-slate-500 dark:text-slate-400">Component tokens & Auto-layout</div>
+                    </div>
+                    <span class="text-[10px] font-mono px-2 py-0.5 bg-figma-blue/10 text-figma-blue font-bold rounded-md">Ready</span>
+                  </div>
+
+                  <!-- Canvas Component 2 -->
+                  <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-figma-purple/10 text-figma-purple flex items-center justify-center font-bold">
+                      <i class="fa-solid fa-code text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-xs font-semibold text-slate-800 dark:text-slate-200">Clean React & Vue Engine</div>
+                      <div class="text-[11px] text-slate-500 dark:text-slate-400">Optimized speed & SEO friendly</div>
+                    </div>
+                    <span class="text-[10px] font-mono px-2 py-0.5 bg-emerald-500/10 text-emerald-600 font-bold rounded-md">100/100</span>
+                  </div>
+
+                  <!-- Canvas Component 3 -->
+                  <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-figma-pink/10 text-figma-pink flex items-center justify-center font-bold">
+                      <i class="fa-solid fa-mobile-screen-button text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-xs font-semibold text-slate-800 dark:text-slate-200">Responsive Touch Native</div>
+                      <div class="text-[11px] text-slate-500 dark:text-slate-400">Mobile-first Ergonomics</div>
+                    </div>
+                    <span class="text-[10px] font-mono px-2 py-0.5 bg-figma-pink/10 text-figma-pink font-bold rounded-md">Mobile</span>
+                  </div>
+
+                  <!-- Floating Figma Toolbar Mockup -->
+                  <div class="pt-2 flex justify-center">
+                    <div class="inline-flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-slate-900 text-slate-200 text-xs shadow-md border border-slate-800">
+                      <i class="fa-solid fa-arrow-pointer text-figma-blue"></i>
+                      <i class="fa-solid fa-frame text-slate-400"></i>
+                      <i class="fa-solid fa-shapes text-slate-400"></i>
+                      <i class="fa-solid fa-font text-slate-400"></i>
+                      <span class="h-3 w-[1px] bg-slate-700"></span>
+                      <span class="text-[10px] text-emerald-400 font-mono">100% Zoom</span>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="py-16 md:py-24 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Section Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+          <div>
+            <div class="text-figma-blue text-xs sm:text-sm font-bold uppercase tracking-wider mb-1 flex items-center gap-2">
+              <i class="fa-solid fa-grip text-figma-purple"></i> Portofolio Karya & Aplikasi
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Proyek Pilihan <span x-text="profile.name">David</span>
+            </h2>
+            <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-1 max-w-xl">
+              Kumpulan aplikasi web, tools AI, mobile apps, dan UI/UX design kit yang dibangun dengan standar kualitas tinggi.
+            </p>
+          </div>
+
+          <!-- Filter Count Badge -->
+          <div class="text-xs font-semibold px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 self-start md:self-auto shadow-sm">
+            Menampilkan <span class="text-figma-blue font-bold" x-text="filteredProjects.length"></span> dari <span x-text="projects.length"></span> Proyek
+          </div>
+        </div>
+
+        <!-- Controls Panel (Filter Tabs & Search Input) -->
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md mb-8 space-y-4 md:space-y-0 md:flex md:items-center md:justify-between md:gap-4">
+          
+          <!-- Category Filter Tabs -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0 no-scrollbar max-w-full">
+            <template x-for="cat in categories" :key="cat.id">
+              <button 
+                @click="selectedCategory = cat.id"
+                :class="selectedCategory === cat.id ? 'bg-slate-900 text-white dark:bg-figma-blue font-semibold shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm whitespace-nowrap transition-all duration-200 flex items-center gap-2"
+              >
+                <i :class="cat.icon" class="text-xs opacity-80"></i>
+                <span x-text="cat.name"></span>
+              </button>
+            </template>
+          </div>
+
+          <!-- Search & Sort Controls -->
+          <div class="flex items-center gap-2.5 w-full md:w-auto">
+            <div class="relative flex-1 md:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input 
+                type="text" 
+                x-model="searchQuery" 
+                placeholder="Cari nama atau teknologi..." 
+                class="w-full pl-9 pr-8 py-2 rounded-xl text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-figma-blue transition"
+              >
+              <button 
+                x-show="searchQuery" 
+                @click="searchQuery = ''" 
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <select 
+              x-model="sortBy" 
+              class="px-3 py-2 rounded-xl text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-figma-blue transition"
+            >
+              <option value="featured">Unggulan</option>
+              <option value="newest">Terbaru</option>
+              <option value="popular">Terpopuler</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <template x-for="project in filteredProjects" :key="project.id">
+            
+            <div class="group bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative">
+              
+              <div>
+                <!-- Image Thumbnail -->
+                <div class="relative overflow-hidden aspect-video bg-slate-100 dark:bg-slate-800">
+                  <img 
+                    :src="project.image" 
+                    :alt="project.title" 
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    onerror="this.src='https://placehold.co/600x400/f1f5f9/0d99ff?text=Project+Preview'"
+                  />
+                  
+                  <div class="absolute top-3 left-3">
+                    <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold tracking-wide bg-slate-900/80 text-white backdrop-blur-md border border-white/20 uppercase">
+                      <span x-text="getCategoryLabel(project.category)"></span>
+                    </span>
+                  </div>
+
+                  <template x-if="project.featured">
+                    <div class="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-md flex items-center gap-1">
+                      <i class="fa-solid fa-star text-[9px]"></i> Featured
+                    </div>
+                  </template>
+
+                  <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px] flex items-center justify-center gap-3">
+                    <button 
+                      @click="openModal(project)" 
+                      class="p-3 rounded-full bg-white text-slate-900 font-bold hover:scale-110 active:scale-95 transition shadow-lg text-xs flex items-center gap-1.5"
+                    >
+                      <i class="fa-solid fa-eye"></i> Detail
+                    </button>
+                    <a 
+                      :href="project.demoUrl || '#'" 
+                      target="_blank" 
+                      class="p-3 rounded-full bg-figma-blue text-white font-bold hover:scale-110 active:scale-95 transition shadow-lg text-xs flex items-center gap-1.5"
+                    >
+                      <i class="fa-solid fa-arrow-up-right-from-square"></i> Demo
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-5 sm:p-6 space-y-3">
+                  <div class="flex items-start justify-between gap-2">
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-figma-blue transition line-clamp-1" x-text="project.title"></h3>
+                    <span class="text-xs font-mono font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded" x-text="project.year"></span>
+                  </div>
+
+                  <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed" x-text="project.description"></p>
+
+                  <div class="flex flex-wrap gap-1.5 pt-1">
+                    <template x-for="tech in project.tags" :key="tech">
+                      <span class="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/60" x-text="tech"></span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Footer -->
+              <div class="px-5 sm:px-6 py-3.5 bg-slate-50/80 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-semibold">
+                <button 
+                  @click="openModal(project)" 
+                  class="text-slate-700 dark:text-slate-300 hover:text-figma-blue transition flex items-center gap-1.5"
+                >
+                  <span>Spesifikasi Teknis</span>
+                  <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+
+                <div class="flex items-center gap-3 text-slate-500">
+                  <a :href="project.githubUrl || '#'" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition" title="Source Code">
+                    <i class="fa-brands fa-github text-base"></i>
+                  </a>
+                  <a :href="project.demoUrl || '#'" target="_blank" class="hover:text-figma-blue transition" title="Live Preview">
+                    <i class="fa-solid fa-external-link text-sm"></i>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+          </template>
+        </div>
+
+        <!-- Empty Search State -->
+        <div x-show="filteredProjects.length === 0" class="text-center py-16 px-4 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 my-8 shadow-sm">
+          <div class="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3 text-xl">
+            <i class="fa-solid fa-folder-open"></i>
+          </div>
+          <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200">Tidak ada proyek yang ditemukan</h3>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau pilih kategori filter lain.</p>
+          <button 
+            @click="searchQuery = ''; selectedCategory = 'all'" 
+            class="mt-4 px-4 py-2 text-xs font-semibold rounded-xl bg-figma-blue text-white shadow"
+          >
+            Reset Filter & Search
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="skills" class="py-16 md:py-24 bg-white dark:bg-slate-900/40 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-2xl mx-auto mb-14">
+          <span class="text-xs font-bold text-figma-purple uppercase tracking-wider">Arsitektur Tech Stack</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
+            Keahlian Utama <span x-text="profile.name">David</span>
+          </h2>
+          <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2">
+            Perpaduan tools desain antarmuka presisi dan ekosistem teknologi pengembangan fullstack modern.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <template x-for="skillGroup in skillsCategories" :key="skillGroup.id">
+            <div class="bg-slate-50/70 dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition space-y-4">
+              <div class="w-12 h-12 rounded-xl bg-figma-blue/10 text-figma-blue flex items-center justify-center text-xl font-bold">
+                <i :class="skillGroup.icon || 'fa-solid fa-code'"></i>
+              </div>
+              <h3 class="font-bold text-base text-slate-900 dark:text-white" x-text="skillGroup.title"></h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400" x-text="skillGroup.description"></p>
+              <div class="flex flex-wrap gap-1.5 pt-2">
+                <template x-for="item in skillGroup.items" :key="item">
+                  <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700" x-text="item"></span>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="experience" class="py-16 md:py-24 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center mb-12">
+          <span class="text-xs font-bold text-figma-blue uppercase tracking-wider">Rekam Jejak</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
+            Pengalaman Karir
+          </h2>
+        </div>
+
+        <div class="relative border-l-2 border-slate-200 dark:border-slate-800 ml-4 sm:ml-8 space-y-10">
+          <template x-for="(exp, index) in experiences" :key="exp.id">
+            <div class="relative pl-6 sm:pl-8 group">
+              <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full ring-4 ring-white dark:ring-slate-950 group-hover:scale-125 transition" :class="index % 3 === 0 ? 'bg-figma-blue' : (index % 3 === 1 ? 'bg-figma-purple' : 'bg-figma-pink')"></div>
+              
+              <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                  <h3 class="font-bold text-base text-slate-900 dark:text-white" x-text="exp.role"></h3>
+                  <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded-md bg-figma-blue/10 text-figma-blue self-start sm:self-auto" x-text="exp.period"></span>
+                </div>
+                <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3" x-text="exp.company"></div>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed" x-text="exp.description"></p>
+              </div>
+            </div>
+          </template>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="about" class="py-16 md:py-24 bg-white dark:bg-slate-900/40 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-slate-50/80 dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-lg flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          
+          <div class="relative flex-shrink-0">
+            <div class="w-36 h-36 sm:w-48 sm:h-48 rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl relative">
+              <img 
+                :src="profile.avatarUrl" 
+                :alt="profile.name" 
+                class="w-full h-full object-cover"
+                onerror="this.src='https://placehold.co/400x400/0d99ff/fff?text=David'"
+              />
+            </div>
+            <div class="absolute -bottom-3 -right-3 bg-gradient-to-tr from-figma-blue to-figma-purple text-white p-2.5 rounded-xl shadow-lg font-bold text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-code"></i> Developer
+            </div>
+          </div>
+
+          <div class="space-y-4 text-center md:text-left flex-1">
+            <span class="text-xs font-bold text-figma-blue uppercase tracking-wider">Filosofi Kerja <span x-text="profile.name">David</span></span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              "Estetika Visual Terbaik Hanya Berdampak Jika Didukung Kode yang Efisien"
+            </h2>
+            <div 
+              class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed space-y-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5" 
+              x-html="profile.bio"
+            ></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 pt-2">
+              <div class="flex items-center gap-2 justify-center md:justify-start">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Fokus pada UI/UX Ergonomis
+              </div>
+              <div class="flex items-center gap-2 justify-center md:justify-start">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Kode Terstruktur & Maintainable
+              </div>
+              <div class="flex items-center gap-2 justify-center md:justify-start">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Optimasi Kecepatan & SEO
+              </div>
+              <div class="flex items-center gap-2 justify-center md:justify-start">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Komunikasi Transparan & Tepat Waktu
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="py-16 md:py-24 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          
+          <div class="lg:col-span-5 space-y-6">
+            <div>
+              <span class="text-xs font-bold text-figma-pink uppercase tracking-wider">Mari Bekerja Sama</span>
+              <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
+                Punya Ide Proyek Menarik?
+              </h2>
+              <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2">
+                Jangan ragu untuk menghubungi <span x-text="profile.name">David</span> untuk diskusi proyek baru, konsultasi UI/UX, atau sekadar bertukar ide!
+              </p>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <a :href="'mailto:' + profile.email" class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 flex items-center gap-4 hover:border-figma-blue transition shadow-sm group">
+                <div class="w-10 h-10 rounded-xl bg-figma-blue/10 text-figma-blue flex items-center justify-center text-lg group-hover:scale-110 transition">
+                  <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div>
+                  <div class="text-[11px] text-slate-400 uppercase font-semibold">Email Langsung</div>
+                  <div class="text-sm font-bold text-slate-800 dark:text-slate-200" x-text="profile.email">david@example.com</div>
+                </div>
+              </a>
+
+              <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 flex items-center gap-4 shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-lg">
+                  <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div>
+                  <div class="text-[11px] text-slate-400 uppercase font-semibold">Lokasi Kerja</div>
+                  <div class="text-sm font-bold text-slate-800 dark:text-slate-200" x-text="profile.location">Jakarta / Remote Worldwide</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Ikuti Media Sosial <span x-text="profile.name"></span></div>
+              <div class="flex items-center gap-3">
+                <template x-for="soc in socialLinks" :key="soc.platform">
+                  <a :href="soc.url" target="_blank" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center hover:bg-slate-900 hover:text-white dark:hover:bg-figma-blue transition shadow-sm" :title="soc.platform">
+                    <i :class="soc.icon" class="text-lg"></i>
+                  </a>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7">
+            <form 
+              @submit.prevent="submitForm()" 
+              class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-4"
+            >
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Kirim Pesan Langsung Ke <span x-text="profile.name"></span></h3>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Nama Lengkap</label>
+                  <input 
+                    type="text" 
+                    x-model="form.name" 
+                    required 
+                    placeholder="Masukkan nama Anda" 
+                    class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-figma-blue transition"
+                  >
+                </div>
+                <div class="space-y-1">
+                  <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Email Anda</label>
+                  <input 
+                    type="email" 
+                    x-model="form.email" 
+                    required 
+                    placeholder="nama@email.com" 
+                    class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-figma-blue transition"
+                  >
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Subjek Proyek</label>
+                <input 
+                  type="text" 
+                  x-model="form.subject" 
+                  required 
+                  placeholder="Contoh: Desain Web App SaaS" 
+                  class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-figma-blue transition"
+                >
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Detail Pesan / Requirements</label>
+                <textarea 
+                  x-model="form.message" 
+                  required 
+                  rows="4" 
+                  placeholder="Ceritakan gambaran singkat proyek yang ingin Anda kembangkan..." 
+                  class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-figma-blue resize-none transition"
+                ></textarea>
+              </div>
+
+              <button 
+                type="submit" 
+                :disabled="formSubmitting"
+                class="w-full py-3.5 rounded-xl bg-figma-blue hover:bg-blue-600 text-white font-bold text-sm shadow-lg hover:opacity-95 active:scale-98 transition flex items-center justify-center gap-2"
+              >
+                <span x-show="!formSubmitting && !formSuccess">Kirim Pesan Sekarang</span>
+                <span x-show="formSubmitting">Mengirim Pesan...</span>
+                <span x-show="formSuccess" class="flex items-center gap-1.5"><i class="fa-solid fa-check-circle"></i> Pesan Terkirim!</span>
+                <i x-show="!formSubmitting && !formSuccess" class="fa-solid fa-paper-plane text-xs"></i>
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <footer class="py-8 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-950/50 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-slate-800 dark:text-slate-200" x-text="profile.name + ' Portfolio'">David Portfolio</span>
+          <span>• &copy; 2026 Hak Cipta Dilindungi.</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button @click="openAdminPortal()" class="text-slate-600 dark:text-slate-400 hover:text-figma-blue flex items-center gap-1">
+            <i class="fa-solid fa-lock text-[10px]"></i> Admin Portal
+          </button>
+          <a href="#" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:text-figma-blue transition" title="Kembali ke Atas">
+            <i class="fa-solid fa-arrow-up"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <div 
+    x-show="modalOpen && viewMode === 'portfolio'" 
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 backdrop-blur-none"
+    x-transition:enter-end="opacity-100 backdrop-blur-md"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 backdrop-blur-md"
+    x-transition:leave-end="opacity-0 backdrop-blur-none"
+    class="fixed inset-0 z-50 bg-slate-950/60 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+    style="display: none;"
+  >
+    <div 
+      @click.away="closeModal()" 
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
+    >
+      <template x-if="activeProject">
+        <div>
+          <button 
+            @click="closeModal()" 
+            class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-900/60 text-white flex items-center justify-center hover:bg-slate-900 transition"
+          >
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+
+          <div class="relative h-64 sm:h-80 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+            <img 
+              :src="activeProject.image" 
+              :alt="activeProject.title" 
+              class="w-full h-full object-cover"
+              onerror="this.src='https://placehold.co/800x500/f1f5f9/0d99ff?text=Project+Detail'"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            
+            <div class="absolute bottom-4 left-6 right-6">
+              <span class="px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider bg-figma-blue text-white uppercase" x-text="getCategoryLabel(activeProject.category)"></span>
+              <h2 class="text-xl sm:text-3xl font-extrabold text-white mt-1" x-text="activeProject.title"></h2>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-6">
+            <div>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gambaran Umum Proyek</h4>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed" x-text="activeProject.fullDescription || activeProject.description"></p>
+            </div>
+
+            <div>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Fitur Utama & Arsitektur</h4>
+              <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-300">
+                <template x-for="feat in (activeProject.features || ['Responsif di semua ukuran layar', 'Arsitektur komponen modular', 'Performa tinggi & ter-sistem', 'Integrasi API langsung'])" :key="feat">
+                  <li class="flex items-center gap-2">
+                    <i class="fa-solid fa-check text-emerald-600 text-xs"></i>
+                    <span x-text="feat"></span>
+                  </li>
+                </template>
+              </ul>
+            </div>
+
+            <div>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Teknologi Digunakan</h4>
+              <div class="flex flex-wrap gap-2">
+                <template x-for="tech in activeProject.tags" :key="tech">
+                  <span class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700" x-text="tech"></span>
+                </template>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
+              <button 
+                @click="closeModal()" 
+                class="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                Tutup
+              </button>
+              <a 
+                :href="activeProject.demoUrl || '#'" 
+                target="_blank" 
+                class="px-5 py-2.5 rounded-xl bg-figma-blue text-white text-xs font-bold hover:bg-blue-600 shadow-md flex items-center gap-2"
+              >
+                <span>Buka Demo Live</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2. ADMIN LOGIN MODAL                                                      -->
+  <!-- ========================================================================= -->
+  <div 
+    x-show="viewMode === 'login'" 
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100"
+    class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
+  >
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative space-y-6">
+      
+      <!-- Close / Back to public button -->
+      <button 
+        @click="viewMode = 'portfolio'" 
+        class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-white transition text-sm p-1"
+      >
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-figma-blue to-figma-purple p-[2px] mx-auto shadow-lg">
+          <div class="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center text-figma-blue text-xl font-bold">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Admin CMS Login</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Masukan kredensial aman untuk mengelola konten portofolio David.</p>
+      </div>
+
+      <!-- Login Alert Error -->
+      <div x-show="loginError" class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation text-sm"></i>
+        <span x-text="loginError"></span>
+      </div>
+
+      <form @submit.prevent="handleLogin()" class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Username Admin</label>
+          <div class="relative">
+            <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input 
+              type="text" 
+              x-model="loginForm.username" 
+              required 
+              placeholder="Username..." 
+              class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-figma-blue transition"
+            >
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Kata Sandi / Password</label>
+          <div class="relative">
+            <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input 
+              type="password" 
+              x-model="loginForm.password" 
+              required 
+              placeholder="••••••••" 
+              class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-figma-blue transition"
+            >
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full py-3 rounded-xl bg-figma-blue hover:bg-blue-600 text-white font-bold text-sm shadow-md hover:scale-[1.01] active:scale-98 transition flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-right-to-bracket text-xs"></i>
+          <span>Masuk Ke Panel Admin</span>
+        </button>
+      </form>
+
+      <div class="text-center pt-2">
+        <button @click="viewMode = 'portfolio'" class="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 underline">
+          Kembali ke Tampilan Publik Website
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 3. FULL SCREEN ADMIN PANEL BACKEND CMS                                     -->
+  <!-- ========================================================================= -->
+  <div x-show="viewMode === 'admin'" class="fixed inset-0 z-50 bg-slate-100 dark:bg-slate-950 flex overflow-hidden font-sans">
+    
+    <!-- ADMIN SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 flex-shrink-0">
+      
+      <div>
+        <!-- Sidebar Brand Header -->
+        <div class="h-16 px-6 border-b border-slate-800 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-figma-blue text-white font-extrabold flex items-center justify-center text-sm">
+              D
+            </div>
+            <div class="flex flex-col">
+              <span class="font-bold text-white text-sm leading-tight">Admin CMS</span>
+              <span class="text-[10px] text-slate-400">David Portfolio Engine</span>
+            </div>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-500" title="System Online"></span>
+        </div>
+
+        <!-- Sidebar Navigation Menu -->
+        <nav class="p-4 space-y-1 text-xs font-semibold">
+          <div class="px-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-2">Manajemen Konten</div>
+          
+          <button 
+            @click="adminTab = 'dashboard'" 
+            :class="adminTab === 'dashboard' ? 'bg-figma-blue text-white font-bold shadow-md' : 'hover:bg-slate-800 text-slate-300'"
+            class="w-full px-3.5 py-2.5 rounded-xl flex items-center gap-3 transition text-left"
+          >
+            <i class="fa-solid fa-chart-pie w-5 text-center text-sm"></i>
+            <span>Dashboard Overview</span>
+          </button>
+
+          <button 
+            @click="adminTab = 'projects'" 
+            :class="adminTab === 'projects' ? 'bg-figma-blue text-white font-bold shadow-md' : 'hover:bg-slate-800 text-slate-300'"
+            class="w-full px-3.5 py-2.5 rounded-xl flex items-center gap-3 transition text-left"
+          >
+            <i class="fa-solid fa-folder-tree w-5 text-center text-sm"></i>
+            <span>Proyek / Showcase</span>
+            <span class="ml-auto bg-slate-800 px-2 py-0.5 rounded text-[10px]" x-text="projects.length"></span>
+          </button>
+
+          <button 
+            @click="adminTab = 'skills'" 
+            :class="adminTab === 'skills' ? 'bg-figma-blue text-white font-bold shadow-md' : 'hover:bg-slate-800 text-slate-300'"
+            class="w-full px-3.5 py-2.5 rounded-xl flex items-center gap-3 transition text-left"
+          >
+            <i class="fa-solid fa-layer-group w-5 text-center text-sm"></i>
+            <span>Keahlian & Stack</span>
+          </button>
+
+          <button 
+            @click="adminTab = 'experience'" 
+            :class="adminTab === 'experience' ? 'bg-figma-blue text-white font-bold shadow-md' : 'hover:bg-slate-800 text-slate-300'"
+            class="w-full px-3.5 py-2.5 rounded-xl flex items-center gap-3 transition text-left"
+          >
+            <i class="fa-solid fa-timeline w-5 text-center text-sm"></i>
+            <span>Pengalaman Karir</span>
+          </button>
+
+          <button 
+            @click="adminTab = 'profile'" 
+            :class="adminTab === 'profile' ? 'bg-figma-blue text-white font-bold shadow-md' : 'hover:bg-slate-800 text-slate-300'"
+            class="w-full px-3.5 py-2.5 rounded-xl flex items-center gap-3 transition text-left"
+          >
+            <i class="fa-solid fa-id-card w-5 text-center text-sm"></i>
+            <span>Profil & Bio</span>
+          </button>
+
+          <div class="px-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider pt-4 mb-2">Interaksi & Keamanan</div>
+
+          <button 
+            @click="adminTab = 'messages'" 
+            :class="adminTab === 'messages' ? 'bg-figma-blue text-white font-bold shadow-md' : 'hover:bg-slate-800 text-slate-300'"
+            class="w-full px-3.5 py-2.5 rounded-xl flex items-center justify-between transition text-left"
+          >
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-inbox w-5 text-center text-sm"></i>
+              <span>Pesan Masuk</span>
+            </div>
+            <span class="bg-rose-500 text-white font-bold px-2 py-0.5 rounded-full text-[10px]" x-text="messages.length"></span>
+          </button>
+
+          <button 
+            @click="adminTab = 'security'" 
+            :class="adminTab === 'security' ? 'bg-figma-blue text-white font-bold shadow-md' : 'hover:bg-slate-800 text-slate-300'"
+            class="w-full px-3.5 py-2.5 rounded-xl flex items-center gap-3 transition text-left"
+          >
+            <i class="fa-solid fa-shield-halved w-5 text-center text-sm"></i>
+            <span>Pengaturan Akun</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Sidebar Footer Action -->
+      <div class="p-4 border-t border-slate-800 space-y-2">
+        <button 
+          @click="viewMode = 'portfolio'" 
+          class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition"
+        >
+          <i class="fa-solid fa-globe text-figma-blue"></i>
+          <span>Lihat Website Utama</span>
+        </button>
+
+        <button 
+          @click="handleLogout()" 
+          class="w-full py-2 px-3 rounded-xl border border-rose-500/30 text-rose-400 hover:bg-rose-500/10 text-xs font-semibold flex items-center justify-center gap-2 transition"
+        >
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Keluar / Logout</span>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ADMIN MAIN CONTENT AREA -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+      
+      <!-- Top Administrative Header -->
+      <header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <h1 class="font-bold text-lg text-slate-900 dark:text-white capitalize" x-text="'Kelola ' + adminTab">Dashboard Overview</h1>
+          <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-mono">CMS Mode</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button 
+            @click="toggleTheme()" 
+            class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs"
+          >
+            <i x-show="!darkMode" class="fa-solid fa-sun text-amber-500"></i>
+            <i x-show="darkMode" class="fa-solid fa-moon text-slate-200"></i>
+          </button>
+
+          <div class="flex items-center gap-2 pl-3 border-l border-slate-200 dark:border-slate-800">
+            <div class="w-8 h-8 rounded-full bg-figma-blue text-white flex items-center justify-center font-bold text-xs" x-text="profile.name.charAt(0)">D</div>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200" x-text="profile.name">David</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Admin Panel Content Body -->
+      <main class="flex-1 overflow-y-auto p-6 space-y-6">
+        
+        <template x-if="adminTab === 'dashboard'">
+          <div class="space-y-6">
+            <!-- Stats Overview Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-slate-500">Total Proyek</div>
+                  <div class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1" x-text="projects.length"></div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-figma-blue/10 text-figma-blue flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-folder-open"></i>
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-slate-500">Pesan Masuk</div>
+                  <div class="text-2xl font-extrabold text-figma-purple mt-1" x-text="messages.length"></div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-figma-purple/10 text-figma-purple flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-envelope"></i>
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-slate-500">Kategori Stack</div>
+                  <div class="text-2xl font-extrabold text-figma-pink mt-1" x-text="skillsCategories.length"></div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-figma-pink/10 text-figma-pink flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-layer-group"></i>
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-slate-500">Status Ketersediaan</div>
+                  <div class="text-xs font-extrabold text-emerald-600 mt-2 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Tersedia Proyek</span>
+                  </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Action Panel -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">Aksi Cepat Pengelolaan</h3>
+              <div class="flex flex-wrap gap-3">
+                <button @click="adminTab = 'projects'; openProjectModal()" class="px-4 py-2.5 rounded-xl bg-figma-blue text-white font-semibold text-xs flex items-center gap-2 hover:bg-blue-600 transition shadow">
+                  <i class="fa-solid fa-plus"></i> Tambah Proyek Baru
+                </button>
+                <button @click="adminTab = 'profile'" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs flex items-center gap-2 hover:bg-slate-200 transition">
+                  <i class="fa-solid fa-pen-to-square"></i> Edit Profil & Headline
+                </button>
+                <button @click="adminTab = 'messages'" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs flex items-center gap-2 hover:bg-slate-200 transition">
+                  <i class="fa-solid fa-inbox"></i> Cek Pesan Pengunjung
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <template x-if="adminTab === 'projects'">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-lg text-slate-900 dark:text-white">Daftar Proyek Showcase</h3>
+                <p class="text-xs text-slate-500">Kelola kartu proyek, gambar, link demo, dan teknologi.</p>
+              </div>
+              <button @click="openProjectModal()" class="px-4 py-2 rounded-xl bg-figma-blue text-white text-xs font-bold shadow flex items-center gap-2 hover:bg-blue-600 transition">
+                <i class="fa-solid fa-plus"></i> Tambah Proyek
+              </button>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th class="p-4">Proyek</th>
+                      <th class="p-4">Kategori</th>
+                      <th class="p-4">Tahun</th>
+                      <th class="p-4">Status</th>
+                      <th class="p-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <template x-for="p in projects" :key="p.id">
+                      <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                        <td class="p-4 flex items-center gap-3">
+                          <img :src="p.image" class="w-10 h-10 rounded-lg object-cover bg-slate-100" onerror="this.src='https://placehold.co/100x100/f1f5f9/0d99ff?text=Project'">
+                          <div>
+                            <div class="font-bold text-slate-800 dark:text-slate-200" x-text="p.title"></div>
+                            <div class="text-[11px] text-slate-400 line-clamp-1" x-text="p.description"></div>
+                          </div>
+                        </td>
+                        <td class="p-4">
+                          <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 font-semibold" x-text="getCategoryLabel(p.category)"></span>
+                        </td>
+                        <td class="p-4 font-mono" x-text="p.year"></td>
+                        <td class="p-4">
+                          <span x-show="p.featured" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 font-bold">Featured</span>
+                          <span x-show="!p.featured" class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400">Regular</span>
+                        </td>
+                        <td class="p-4 text-right space-x-2">
+                          <button @click="editProject(p)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-figma-blue hover:bg-figma-blue hover:text-white transition" title="Edit">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                          </button>
+                          <button @click="deleteProject(p.id)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-rose-500 hover:bg-rose-500 hover:text-white transition" title="Hapus">
+                            <i class="fa-solid fa-trash-can"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <template x-if="adminTab === 'skills'">
+          <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+            <h3 class="font-bold text-base">Manajemen Kelompok Keahlian</h3>
+            <p class="text-xs text-slate-500">Edit kategori tech stack dan daftar teknologi yang ditampilkan.</p>
+            
+            <div class="space-y-4 pt-2">
+              <template x-for="(cat, idx) in skillsCategories" :key="cat.id">
+                <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input type="text" x-model="cat.title" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs font-bold border border-slate-200 dark:border-slate-700">
+                    <input type="text" x-model="cat.description" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700">
+                  </div>
+                  <div>
+                    <label class="text-[11px] font-semibold text-slate-400">Daftar Skill (Pisahkan dengan Koma):</label>
+                    <input 
+                      type="text" 
+                      :value="cat.items.join(', ')" 
+                      @change="cat.items = $event.target.value.split(',').map(s => s.trim())" 
+                      class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1"
+                    >
+                  </div>
+                </div>
+              </template>
+            </div>
+            <button @click="saveDataNotification()" class="px-4 py-2 bg-figma-blue text-white font-bold text-xs rounded-xl shadow">Simpan Perubahan Stack</button>
+          </div>
+        </template>
+
+        <template x-if="adminTab === 'experience'">
+          <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-base">Daftar Pengalaman Karir</h3>
+              <button @click="addExperienceItem()" class="px-3 py-1.5 bg-figma-blue text-white text-xs font-bold rounded-xl shadow">+ Tambah Pengalaman</button>
+            </div>
+            <div class="space-y-4">
+              <template x-for="(exp, idx) in experiences" :key="exp.id">
+                <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3 relative">
+                  <button @click="deleteExperienceItem(idx)" class="absolute top-3 right-3 text-rose-500 hover:text-rose-700 text-xs">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <input type="text" x-model="exp.role" placeholder="Jabatan" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs font-bold border border-slate-200 dark:border-slate-700">
+                    <input type="text" x-model="exp.company" placeholder="Nama Perusahaan" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700">
+                    <input type="text" x-model="exp.period" placeholder="Periode (2023 - Sekarang)" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700">
+                  </div>
+                  <textarea x-model="exp.description" rows="2" placeholder="Deskripsi peranan..." class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 resize-none"></textarea>
+                </div>
+              </template>
+            </div>
+            <button @click="saveDataNotification()" class="px-4 py-2 bg-figma-blue text-white font-bold text-xs rounded-xl shadow">Simpan Pengalaman</button>
+          </div>
+        </template>
+
+        <template x-if="adminTab === 'profile'">
+          <div class="p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-6 max-w-3xl shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div>
+                <h3 class="font-bold text-lg text-slate-900 dark:text-white">Edit Profil, Hero & Bio</h3>
+                <p class="text-xs text-slate-500">Gunakan toolbar editor visual di bawah untuk memformat teks tanpa menulis kode HTML manual.</p>
+              </div>
+              <label class="inline-flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                <input type="checkbox" x-model="profile.availableForWork" class="rounded text-figma-blue focus:ring-figma-blue">
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Status: Siap Menerima Proyek</span>
+              </label>
+            </div>
+            
+            <div class="space-y-5">
+              <!-- Identitas Dasar -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Nama Lengkap Creator</label>
+                  <input type="text" x-model="profile.name" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 mt-1.5 focus:outline-none focus:ring-2 focus:ring-figma-blue">
+                </div>
+
+                <div>
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Role / Spesialisasi</label>
+                  <input type="text" x-model="profile.role" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 mt-1.5 focus:outline-none focus:ring-2 focus:ring-figma-blue">
+                </div>
+              </div>
+
+              <!-- Rich Text Editor 1: Headline Utama -->
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Headline Utama (Hero)</label>
+                  <span class="text-[11px] text-slate-400">Blok teks lalu klik tombol aksen untuk memberi warna gradasi</span>
+                </div>
+                
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50 dark:bg-slate-800/80 focus-within:ring-2 focus-within:ring-figma-blue transition">
+                  <!-- WYSIWYG Toolbar -->
+                  <div class="flex flex-wrap items-center gap-1 p-2 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                    <button type="button" @mousedown.prevent="execRichText('bold', 'headline-editor')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition" title="Tebal (Bold)">
+                      <i class="fa-solid fa-bold"></i>
+                    </button>
+                    <button type="button" @mousedown.prevent="execRichText('italic', 'headline-editor')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs transition" title="Miring (Italic)">
+                      <i class="fa-solid fa-italic"></i>
+                    </button>
+                    <button type="button" @mousedown.prevent="execRichText('underline', 'headline-editor')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs transition" title="Garis Bawah (Underline)">
+                      <i class="fa-solid fa-underline"></i>
+                    </button>
+                    
+                    <span class="h-4 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1"></span>
+                    
+                    <button type="button" @mousedown.prevent="applyRichTextSpan('text-transparent bg-clip-text bg-gradient-to-r from-figma-blue via-figma-purple to-figma-pink', 'headline-editor')" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-figma-blue/10 via-figma-purple/10 to-figma-pink/10 hover:from-figma-blue/20 hover:to-figma-pink/20 border border-figma-purple/30 text-xs font-bold text-figma-purple flex items-center gap-1.5 transition" title="Beri Efek Gradasi Figma pada Teks Terpilih">
+                      <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                      <span>Aksen Gradasi</span>
+                    </button>
+
+                    <button type="button" @mousedown.prevent="applyRichTextSpan('text-figma-blue', 'headline-editor')" class="px-2.5 py-1 rounded-lg bg-figma-blue/10 hover:bg-figma-blue/20 border border-figma-blue/30 text-xs font-bold text-figma-blue flex items-center gap-1 transition" title="Beri Warna Biru Utama">
+                      <span>Biru Figma</span>
+                    </button>
+
+                    <button type="button" @mousedown.prevent="clearRichTextFormat('headline-editor')" class="ml-auto px-2.5 py-1 rounded-lg hover:bg-rose-500/10 text-slate-400 hover:text-rose-500 text-xs flex items-center gap-1 transition" title="Bersihkan Format ke Teks Polos">
+                      <i class="fa-solid fa-eraser"></i>
+                      <span class="hidden sm:inline text-[11px]">Reset Format</span>
+                    </button>
+                  </div>
+
+                  <!-- Editable Rich Content Area -->
+                  <div 
+                    id="headline-editor"
+                    contenteditable="true"
+                    x-init="$el.innerHTML = profile.headline"
+                    @input="profile.headline = $el.innerHTML"
+                    class="p-3.5 min-h-[84px] text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug focus:outline-none"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Subheadline Hero -->
+              <div>
+                <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Subheadline Hero</label>
+                <textarea x-model="profile.subheadline" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 mt-1.5 resize-none focus:outline-none focus:ring-2 focus:ring-figma-blue"></textarea>
+              </div>
+
+              <!-- Rich Text Editor 2: Deskripsi Ringkas Bio -->
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Deskripsi Ringkas Bio (Section Tentang)</label>
+                  <span class="text-[11px] text-slate-400">Mendukung format teks kaya & daftar poin</span>
+                </div>
+
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50 dark:bg-slate-800/80 focus-within:ring-2 focus-within:ring-figma-blue transition">
+                  <!-- WYSIWYG Toolbar -->
+                  <div class="flex flex-wrap items-center gap-1 p-2 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                    <button type="button" @mousedown.prevent="execRichText('bold', 'bio-editor')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition" title="Tebal (Bold)">
+                      <i class="fa-solid fa-bold"></i>
+                    </button>
+                    <button type="button" @mousedown.prevent="execRichText('italic', 'bio-editor')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs transition" title="Miring (Italic)">
+                      <i class="fa-solid fa-italic"></i>
+                    </button>
+                    <button type="button" @mousedown.prevent="execRichText('underline', 'bio-editor')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs transition" title="Garis Bawah (Underline)">
+                      <i class="fa-solid fa-underline"></i>
+                    </button>
+                    <button type="button" @mousedown.prevent="execRichText('insertUnorderedList', 'bio-editor')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs transition" title="Daftar Poin (Bullet List)">
+                      <i class="fa-solid fa-list-ul"></i>
+                    </button>
+
+                    <span class="h-4 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1"></span>
+
+                    <button type="button" @mousedown.prevent="applyRichTextSpan('font-semibold text-figma-blue', 'bio-editor')" class="px-2.5 py-1 rounded-lg bg-figma-blue/10 hover:bg-figma-blue/20 border border-figma-blue/30 text-xs font-semibold text-figma-blue flex items-center gap-1 transition" title="Sorot Kata Kunci dengan Biru Figma">
+                      <i class="fa-solid fa-highlighter text-[10px]"></i>
+                      <span>Highlight Kata</span>
+                    </button>
+
+                    <button type="button" @mousedown.prevent="clearRichTextFormat('bio-editor')" class="ml-auto px-2.5 py-1 rounded-lg hover:bg-rose-500/10 text-slate-400 hover:text-rose-500 text-xs flex items-center gap-1 transition" title="Bersihkan Format ke Teks Polos">
+                      <i class="fa-solid fa-eraser"></i>
+                      <span class="hidden sm:inline text-[11px]">Reset Format</span>
+                    </button>
+                  </div>
+
+                  <!-- Editable Rich Content Area -->
+                  <div 
+                    id="bio-editor"
+                    contenteditable="true"
+                    x-init="$el.innerHTML = profile.bio"
+                    @input="profile.bio = $el.innerHTML"
+                    class="p-3.5 min-h-[110px] text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed focus:outline-none [&_ul]:list-disc [&_ul]:pl-5"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Avatar URL dengan Preview -->
+              <div>
+                <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">URL Avatar Foto Profil</label>
+                <div class="flex items-center gap-3 mt-1.5">
+                  <img :src="profile.avatarUrl" class="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0" onerror="this.src='https://placehold.co/100x100/0d99ff/fff?text=D'">
+                  <input type="text" x-model="profile.avatarUrl" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-figma-blue">
+                </div>
+              </div>
+
+              <!-- Kontak & Lokasi -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Email Utama</label>
+                  <input type="email" x-model="profile.email" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 mt-1.5 focus:outline-none focus:ring-2 focus:ring-figma-blue">
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Lokasi Kerja</label>
+                  <input type="text" x-model="profile.location" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 mt-1.5 focus:outline-none focus:ring-2 focus:ring-figma-blue">
+                </div>
+              </div>
+
+              <!-- Action Save Button -->
+              <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
+                <span class="text-[11px] text-slate-400">Perubahan langsung sinkron dengan tampilan landing page.</span>
+                <button 
+                  type="button"
+                  @click="saveProfileChanges()" 
+                  class="px-6 py-3 bg-figma-blue hover:bg-blue-600 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-figma-blue/25 flex items-center gap-2 transition cursor-pointer"
+                >
+                  <i class="fa-solid fa-floppy-disk"></i>
+                  <span>Simpan Perubahan Hero & Profile</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <template x-if="adminTab === 'messages'">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-lg text-slate-900 dark:text-white">Kotak Pesan Masuk</h3>
+                <p class="text-xs text-slate-500">Pesan langsung dari pengunjung halaman utama portofolio.</p>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+              <template x-if="messages.length === 0">
+                <div class="p-8 text-center text-slate-400 text-xs">Belum ada pesan yang diterima.</div>
+              </template>
+              
+              <template x-if="messages.length > 0">
+                <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <template x-for="(m, idx) in messages" :key="idx">
+                    <div class="p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 space-y-2">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                          <span class="font-bold text-slate-900 dark:text-white text-sm" x-text="m.name"></span>
+                          <span class="text-xs text-slate-400" x-text="'(' + m.email + ')'"></span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                          <span class="text-[11px] font-mono text-slate-400" x-text="m.date || 'Hari Ini'"></span>
+                          <button @click="deleteMessage(idx)" class="text-rose-500 hover:text-rose-700 text-xs" title="Hapus Pesan">
+                            <i class="fa-solid fa-trash-can"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="text-xs font-semibold text-figma-blue" x-text="'Subjek: ' + m.subject"></div>
+                      <p class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700/60 leading-relaxed" x-text="m.message"></p>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <template x-if="adminTab === 'security'">
+          <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-6 max-w-lg">
+            <div>
+              <h3 class="font-bold text-lg text-slate-900 dark:text-white">Keamanan & Ubah Password</h3>
+              <p class="text-xs text-slate-500">Perbarui username dan kata sandi akses panel admin.</p>
+            </div>
+
+            <div x-show="secNotice" class="p-3 rounded-xl text-xs font-semibold" :class="secError ? 'bg-rose-500/10 text-rose-500' : 'bg-emerald-500/10 text-emerald-600'" x-text="secNotice"></div>
+
+            <form @submit.prevent="updateSecuritySettings()" class="space-y-4">
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Password Saat Ini</label>
+                <input type="password" x-model="secForm.currentPassword" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700">
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Username Admin Baru</label>
+                <input type="text" x-model="secForm.newUsername" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700">
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Password Baru</label>
+                <input type="password" x-model="secForm.newPassword" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700">
+              </div>
+
+              <button type="submit" class="w-full py-2.5 bg-figma-blue hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow transition">
+                Simpan Kredensial Baru
+              </button>
+            </form>
+          </div>
+        </template>
+
+      </main>
+
+    </div>
+
+    <div x-show="projectModalOpen" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 class="font-bold text-base text-slate-900 dark:text-white" x-text="editingProject.id ? 'Edit Proyek' : 'Tambah Proyek Baru'"></h3>
+          <button @click="projectModalOpen = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form @submit.prevent="saveProject()" class="space-y-3">
+          <div>
+            <label class="text-xs font-semibold">Judul Proyek</label>
+            <input type="text" x-model="editingProject.title" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold">Kategori</label>
+              <select x-model="editingProject.category" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1">
+                <option value="webapp">Web App</option>
+                <option value="mobile">Mobile Apps</option>
+                <option value="uiux">UI/UX Kit</option>
+                <option value="ai">AI & Automation</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-semibold">Tahun Rilis</label>
+              <input type="text" x-model="editingProject.year" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-semibold">URL Gambar Preview</label>
+            <input type="text" x-model="editingProject.image" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1">
+          </div>
+
+          <div>
+            <label class="text-xs font-semibold">Deskripsi Singkat</label>
+            <textarea x-model="editingProject.description" rows="2" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1 resize-none"></textarea>
+          </div>
+
+          <div>
+            <label class="text-xs font-semibold">Tag Teknologi (Pisahkan Koma)</label>
+            <input type="text" x-model="editingProject.tagsInput" placeholder="React, Tailwind, Node.js" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold">Link Demo Live</label>
+              <input type="text" x-model="editingProject.demoUrl" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1">
+            </div>
+            <div>
+              <label class="text-xs font-semibold">Link Repository GitHub</label>
+              <input type="text" x-model="editingProject.githubUrl" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 mt-1">
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 pt-2">
+            <input type="checkbox" id="featCheck" x-model="editingProject.featured" class="rounded text-figma-blue">
+            <label for="featCheck" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Tampilkan sebagai Proyek Featured / Utama</label>
+          </div>
+
+          <div class="pt-3 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+            <button type="button" @click="projectModalOpen = false" class="px-4 py-2 text-xs font-semibold rounded-xl border border-slate-300">Batal</button>
+            <button type="submit" class="px-5 py-2 text-xs font-bold rounded-xl bg-figma-blue text-white shadow">Simpan Proyek</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. GLOBAL TOAST NOTIFICATION & CUSTOM CONFIRMATION MODAL                  -->
+  <!-- ========================================================================= -->
+  <div 
+    x-show="toast.visible"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+    x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+    style="display: none;"
+    class="fixed bottom-6 right-6 z-[100] max-w-sm w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl p-4 flex items-start gap-3.5"
+  >
+    <div 
+      class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-base"
+      :class="toast.type === 'error' ? 'bg-rose-500/10 text-rose-600' : (toast.type === 'info' ? 'bg-figma-blue/10 text-figma-blue' : 'bg-emerald-500/10 text-emerald-600')"
+    >
+      <i :class="toast.type === 'error' ? 'fa-solid fa-circle-exclamation' : (toast.type === 'info' ? 'fa-solid fa-circle-info' : 'fa-solid fa-circle-check')"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="text-xs font-extrabold text-slate-900 dark:text-white" x-text="toast.title">Berhasil Disimpan</div>
+      <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed" x-text="toast.message"></p>
+    </div>
+    <button @click="toast.visible = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <!-- Custom Confirm Modal (Pengganti window.confirm) -->
+  <div 
+    x-show="confirmModal.open"
+    style="display: none;"
+    class="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+  >
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-slate-900 dark:text-white">Konfirmasi Hapus</h4>
+          <p class="text-xs text-slate-500 mt-0.5" x-text="confirmModal.message"></p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button @click="confirmModal.open = false" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Batal</button>
+        <button @click="executeConfirmedAction()" class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function portfolioApp() {
+      return {
+        // App Core State
+        viewMode: 'portfolio', // 'portfolio', 'login', 'admin'
+        adminTab: 'dashboard', // 'dashboard', 'projects', 'skills', 'experience', 'profile', 'messages', 'security'
+        darkMode: false,
+        mobileMenuOpen: false,
+        copiedEmail: false,
+        modalOpen: false,
+        activeProject: null,
+        searchQuery: '',
+        selectedCategory: 'all',
+        sortBy: 'featured',
+
+        // Security Authentication State
+        isAdminLoggedIn: false,
+        loginForm: { username: '', password: '' },
+        loginError: '',
+        
+        // Internal Admin Kredensial default
+        adminCredentials: {
+          username: 'admin',
+          password: 'admin123'
+        },
+
+        // Security Reset Form
+        secForm: { currentPassword: '', newUsername: '', newPassword: '' },
+        secNotice: '',
+        secError: false,
+
+        // Toast Notification & Custom Confirm State
+        toast: {
+          visible: false,
+          title: 'Berhasil',
+          message: '',
+          type: 'success',
+          timeoutId: null
+        },
+        confirmModal: {
+          open: false,
+          message: '',
+          callback: null
+        },
+
+        // Contact Form
+        form: { name: '', email: '', subject: '', message: '' },
+        formSubmitting: false,
+        formSuccess: false,
+
+        // Admin Project Editor State
+        projectModalOpen: false,
+        editingProject: {
+          id: null,
+          title: '',
+          category: 'webapp',
+          year: '2026',
+          image: '',
+          description: '',
+          tagsInput: '',
+          demoUrl: '#',
+          githubUrl: '#',
+          featured: false
+        },
+
+        // Profile State
+        profile: {
+          name: "David",
+          role: "Fullstack Dev & UI/UX Architect",
+          headline: 'Mewujudkan Gagasan Menjadi <span class="text-transparent bg-clip-text bg-gradient-to-r from-figma-blue via-figma-purple to-figma-pink">Aplikasi Web Berkelas & Presisi.</span>',
+          subheadline: "Halo! Saya David, seorang Fullstack Developer & Designer. Saya berfokus membangun aplikasi web interaktif, cepat, rapi, dan responsif dengan pengalaman antarmuka yang bersih.",
+          bio: 'Saya percaya bahwa produk digital yang hebat lahir dari keharmonisan antara <span class="font-semibold text-figma-blue">estetika antarmuka</span> dan <span class="font-semibold text-figma-blue">performa teknis</span> di balik layar. Dengan pengalaman menangani puluhan proyek, saya selalu memastikan setiap detail piksel presisi dan setiap baris kode terstruktur rapi.',
+          avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600",
+          availableForWork: true,
+          email: "david@example.com",
+          location: "Jakarta / Remote Worldwide",
+          statsCompletedProjects: "30+",
+          statsSatisfaction: "99%",
+          statsExperienceYears: "4+"
+        },
+
+        // Category Filter Metadata
+        categories: [
+          { id: 'all', name: 'Semua Proyek', icon: 'fa-solid fa-border-all' },
+          { id: 'webapp', name: 'Web App', icon: 'fa-solid fa-laptop-code' },
+          { id: 'mobile', name: 'Mobile Apps', icon: 'fa-solid fa-mobile-screen' },
+          { id: 'uiux', name: 'UI/UX Kit', icon: 'fa-solid fa-figma' },
+          { id: 'ai', name: 'AI & Automation', icon: 'fa-solid fa-robot' },
+        ],
+
+        // Showcase Projects Initial Dataset
+        projects: [
+          {
+            id: 1,
+            title: "FinFlow — SaaS Analytics Dashboard",
+            category: "webapp",
+            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800",
+            description: "Dashboard analitik keuangan interaktif berbasis React dan Tailwind CSS dengan visualisasi chart data real-time.",
+            fullDescription: "FinFlow adalah platform manajemen arus kas dan analitik transaksi bisnis yang dirancang dengan pendekatan Figma Design Tokens.",
+            features: ["Grafik Data Interaktif", "Export Laporan PDF/CSV", "Clean Theme Ready", "Multi-Currency Converter"],
+            tags: ["React", "Tailwind CSS", "Chart.js", "TypeScript"],
+            featured: true,
+            year: "2026",
+            popularScore: 98,
+            demoUrl: "#",
+            githubUrl: "#"
+          },
+          {
+            id: 2,
+            title: "Lumix UI — Figma Design System Kit",
+            category: "uiux",
+            image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&q=80&w=800",
+            description: "Komponen UI Figma komprehensif dengan 150+ varian tombol, form, modal, dan dokumentasi variabel token.",
+            fullDescription: "Lumix UI diciptakan untuk mempercepat alur kerja designer dan frontend developer.",
+            features: ["150+ Component Variants", "Figma Variables Support", "WCAG AA Contrast Compliant"],
+            tags: ["Figma", "Design Tokens", "UI Architecture"],
+            featured: true,
+            year: "2025",
+            popularScore: 95,
+            demoUrl: "#",
+            githubUrl: "#"
+          },
+          {
+            id: 3,
+            title: "SmartCogni — AI Chatbot Engine",
+            category: "ai",
+            image: "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&q=80&w=800",
+            description: "Platform agen kecerdasan buatan terintegrasi LLM OpenAI & Claude untuk otomatisasi dokumen.",
+            fullDescription: "SmartCogni merupakan solusi sistem RAG berbasis kecerdasan buatan.",
+            features: ["OpenAI API Integration", "Vector Search", "Contextual Memory"],
+            tags: ["Python", "LangChain", "OpenAI", "Next.js"],
+            featured: true,
+            year: "2026",
+            popularScore: 99,
+            demoUrl: "#",
+            githubUrl: "#"
+          }
+        ],
+
+        // Skills Stack Categories Dataset
+        skillsCategories: [
+          {
+            id: 1,
+            title: "Frontend Engine",
+            icon: "fa-solid fa-code",
+            description: "Membangun UI yang responsif, cepat, interaktif, dan ramah aksesibilitas.",
+            items: ["React.js", "Next.js", "Vue 3", "Tailwind CSS", "TypeScript"]
+          },
+          {
+            id: 2,
+            title: "UI/UX & Systems",
+            icon: "fa-solid fa-pen-nib",
+            description: "Perancangan prototype interaktif, wireframe, serta Figma design tokens reusable.",
+            items: ["Figma System", "Design Tokens", "Wireframing", "User Research"]
+          },
+          {
+            id: 3,
+            title: "Backend & API",
+            icon: "fa-solid fa-server",
+            description: "Pengembangan REST API scalable, arsitektur database, dan otentikasi aman.",
+            items: ["Node.js", "Express", "PostgreSQL", "Supabase"]
+          },
+          {
+            id: 4,
+            title: "AI & Automation",
+            icon: "fa-solid fa-robot",
+            description: "Integrasi model LLM OpenAI/Claude, RAG pipeline, dan otomatisasi alur kerja.",
+            items: ["OpenAI API", "LangChain", "Python", "Pinecone"]
+          }
+        ],
+
+        // Career Experience Dataset
+        experiences: [
+          {
+            id: 1,
+            role: "Senior Fullstack Developer & Designer",
+            company: "TechCorp Global Ltd.",
+            period: "2023 — Sekarang",
+            description: "Memimpin tim frontend & designer dalam memodernisasi platform SaaS perusahaan menggunakan React, TypeScript, dan Figma Design System."
+          },
+          {
+            id: 2,
+            role: "Full Stack Web Developer",
+            company: "Creative Digital Studio",
+            period: "2021 — 2023",
+            description: "Mengembangkan 20+ aplikasi web kustom untuk berbagai klien dari perancangan wireframe hingga cloud deployment."
+          }
+        ],
+
+        // Social Links Dataset
+        socialLinks: [
+          { platform: "GitHub", url: "https://github.com", icon: "fa-brands fa-github" },
+          { platform: "LinkedIn", url: "https://linkedin.com", icon: "fa-brands fa-linkedin-in" },
+          { platform: "Figma", url: "https://figma.com", icon: "fa-brands fa-figma" },
+          { platform: "Dribbble", url: "https://dribbble.com", icon: "fa-brands fa-dribbble" }
+        ],
+
+        // Inbox Messages
+        messages: [
+          {
+            name: "Budi Santoso",
+            email: "budi@techfirm.id",
+            subject: "Penawaran Proyek Redesain SaaS",
+            message: "Halo David, kami melihat portofolio Anda dan sangat tertarik untuk bekerjasama membuat dashboard SaaS.",
+            date: "24 Okt 2026"
+          }
+        ],
+
+        // App Initialization logic
+        initApp() {
+          this.secForm.newUsername = this.adminCredentials.username;
+        },
+
+        // Global Toast Helper
+        showToast(message, type = 'success', customTitle = null) {
+          if (this.toast.timeoutId) {
+            clearTimeout(this.toast.timeoutId);
+          }
+          this.toast.type = type;
+          this.toast.title = customTitle || (type === 'error' ? 'Perhatian' : (type === 'info' ? 'Informasi' : 'Perubahan Tersimpan'));
+          this.toast.message = message;
+          this.toast.visible = true;
+
+          this.toast.timeoutId = setTimeout(() => {
+            this.toast.visible = false;
+          }, 3800);
+        },
+
+        // Rich Text Editor Helpers
+        execRichText(command, editorId) {
+          const el = document.getElementById(editorId);
+          if (!el) return;
+          el.focus();
+          document.execCommand(command, false, null);
+          this.syncEditorToState(editorId, el.innerHTML);
+        },
+
+        applyRichTextSpan(className, editorId) {
+          const el = document.getElementById(editorId);
+          if (!el) return;
+          el.focus();
+          const selection = window.getSelection();
+          if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+            this.showToast('Silakan blok/pilih teks di dalam editor terlebih dahulu.', 'info', 'Pilih Teks');
+            return;
+          }
+          const range = selection.getRangeAt(0);
+          if (!el.contains(range.commonAncestorContainer)) {
+            this.showToast('Blok teks di dalam kolom editor yang sesuai.', 'info', 'Pilih Teks');
+            return;
+          }
+          const span = document.createElement('span');
+          span.className = className;
+          try {
+            const extracted = range.extractContents();
+            span.appendChild(extracted);
+            range.insertNode(span);
+            selection.removeAllRanges();
+            const newRange = document.createRange();
+            newRange.selectNodeContents(span);
+            selection.addRange(newRange);
+          } catch (e) {
+            const selectedText = selection.toString();
+            document.execCommand('insertHTML', false, `<span class="${className}">${selectedText}</span>`);
+          }
+          this.syncEditorToState(editorId, el.innerHTML);
+        },
+
+        clearRichTextFormat(editorId) {
+          const el = document.getElementById(editorId);
+          if (!el) return;
+          el.focus();
+          const plainText = el.innerText || el.textContent || '';
+          el.innerHTML = plainText;
+          this.syncEditorToState(editorId, el.innerHTML);
+          this.showToast('Format gaya teks telah dikembalikan ke teks polos.', 'info', 'Format Direset');
+        },
+
+        syncEditorToState(editorId, htmlContent) {
+          if (editorId === 'headline-editor') {
+            this.profile.headline = htmlContent;
+          } else if (editorId === 'bio-editor') {
+            this.profile.bio = htmlContent;
+          }
+        },
+
+        saveProfileChanges() {
+          const headlineEl = document.getElementById('headline-editor');
+          const bioEl = document.getElementById('bio-editor');
+          if (headlineEl) this.profile.headline = headlineEl.innerHTML.trim();
+          if (bioEl) this.profile.bio = bioEl.innerHTML.trim();
+
+          this.showToast('Perubahan Hero, Bio & Profile berhasil disimpan dan diterapkan ke halaman utama!', 'success');
+        },
+
+        // Portal Access Handler
+        openAdminPortal() {
+          if (this.isAdminLoggedIn) {
+            this.viewMode = 'admin';
+          } else {
+            this.loginError = '';
+            this.loginForm.username = '';
+            this.loginForm.password = '';
+            this.viewMode = 'login';
+          }
+        },
+
+        // Security Login Handler
+        handleLogin() {
+          if (
+            this.loginForm.username === this.adminCredentials.username && 
+            this.loginForm.password === this.adminCredentials.password
+          ) {
+            this.isAdminLoggedIn = true;
+            this.loginError = '';
+            this.viewMode = 'admin';
+            this.adminTab = 'dashboard';
+          } else {
+            this.loginError = 'Username atau Password yang dimasukkan salah!';
+          }
+        },
+
+        handleLogout() {
+          this.isAdminLoggedIn = false;
+          this.viewMode = 'portfolio';
+        },
+
+        // Update Security Credentials
+        updateSecuritySettings() {
+          if (this.secForm.currentPassword !== this.adminCredentials.password) {
+            this.secError = true;
+            this.secNotice = 'Password saat ini tidak sesuai!';
+            return;
+          }
+
+          if (!this.secForm.newUsername || !this.secForm.newPassword) {
+            this.secError = true;
+            this.secNotice = 'Username dan Password baru tidak boleh kosong!';
+            return;
+          }
+
+          this.adminCredentials.username = this.secForm.newUsername;
+          this.adminCredentials.password = this.secForm.newPassword;
+
+          this.secError = false;
+          this.secNotice = 'Kredensial Admin Berhasil Diperbarui!';
+          this.secForm.currentPassword = '';
+          this.secForm.newPassword = '';
+          this.showToast('Username dan kata sandi admin telah diperbarui.', 'success');
+        },
+
+        // Helper Label Category
+        getCategoryLabel(catId) {
+          const match = this.categories.find(c => c.id === catId);
+          return match ? match.name : catId;
+        },
+
+        // Public Contact Submit
+        submitForm() {
+          this.formSubmitting = true;
+          setTimeout(() => {
+            this.formSubmitting = false;
+            this.formSuccess = true;
+            
+            // Push message to inbox
+            this.messages.unshift({
+              name: this.form.name,
+              email: this.form.email,
+              subject: this.form.subject,
+              message: this.form.message,
+              date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+            });
+
+            this.form.name = '';
+            this.form.email = '';
+            this.form.subject = '';
+            this.form.message = '';
+
+            setTimeout(() => {
+              this.formSuccess = false;
+            }, 4000);
+          }, 1000);
+        },
+
+        deleteMessage(idx) {
+          this.messages.splice(idx, 1);
+        },
+
+        // Projects CRUD Functions
+        openProjectModal() {
+          this.editingProject = {
+            id: null,
+            title: '',
+            category: 'webapp',
+            year: new Date().getFullYear().toString(),
+            image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
+            description: '',
+            tagsInput: '',
+            demoUrl: '#',
+            githubUrl: '#',
+            featured: false
+          };
+          this.projectModalOpen = true;
+        },
+
+        editProject(p) {
+          this.editingProject = {
+            ...p,
+            tagsInput: p.tags ? p.tags.join(', ') : ''
+          };
+          this.projectModalOpen = true;
+        },
+
+        saveProject() {
+          const tagsArray = this.editingProject.tagsInput ? this.editingProject.tagsInput.split(',').map(t => t.trim()) : ['React'];
+          
+          if (this.editingProject.id) {
+            // Edit Existing
+            const index = this.projects.findIndex(p => p.id === this.editingProject.id);
+            if (index !== -1) {
+              this.projects[index] = {
+                ...this.editingProject,
+                tags: tagsArray
+              };
+            }
+          } else {
+            // Add New
+            const newProj = {
+              ...this.editingProject,
+              id: Date.now(),
+              tags: tagsArray,
+              popularScore: 90
+            };
+            this.projects.unshift(newProj);
+          }
+
+          this.projectModalOpen = false;
+          this.showToast('Data proyek portofolio berhasil disimpan!', 'success');
+        },
+
+        deleteProject(id) {
+          this.confirmModal = {
+            open: true,
+            message: 'Apakah Anda yakin ingin menghapus proyek ini dari daftar portofolio?',
+            callback: () => {
+              this.projects = this.projects.filter(p => p.id !== id);
+              this.showToast('Proyek berhasil dihapus dari portofolio.', 'info', 'Proyek Dihapus');
+            }
+          };
+        },
+
+        executeConfirmedAction() {
+          if (typeof this.confirmModal.callback === 'function') {
+            this.confirmModal.callback();
+          }
+          this.confirmModal.open = false;
+          this.confirmModal.callback = null;
+        },
+
+        addExperienceItem() {
+          this.experiences.unshift({
+            id: Date.now(),
+            role: "Posisi Baru",
+            company: "Nama Perusahaan",
+            period: "2026 — Sekarang",
+            description: "Tuliskan deskripsi ringkas mengenai pencapaian dan peran..."
+          });
+        },
+
+        deleteExperienceItem(idx) {
+          this.experiences.splice(idx, 1);
+          this.showToast('Item pengalaman karir dihapus.', 'info', 'Item Dihapus');
+        },
+
+        saveDataNotification() {
+          this.showToast('Seluruh perubahan data berhasil disimpan!', 'success');
+        },
+
+        // Theme Toggle
+        toggleTheme() {
+          this.darkMode = !this.darkMode;
+        },
+
+        // Copy Email
+        copyEmail() {
+          const tempInput = document.createElement("input");
+          tempInput.value = this.profile.email;
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          try {
+            document.execCommand("copy");
+            this.copiedEmail = true;
+            setTimeout(() => {
+              this.copiedEmail = false;
+            }, 2500);
+          } catch (err) {}
+          document.body.removeChild(tempInput);
+        },
+
+        // Modal triggers
+        openModal(project) {
+          this.activeProject = project;
+          this.modalOpen = true;
+        },
+        closeModal() {
+          this.modalOpen = false;
+          this.activeProject = null;
+        },
+
+        // Computed Filtered Projects
+        get filteredProjects() {
+          return this.projects.filter(project => {
+            const categoryMatch = this.selectedCategory === 'all' || project.category === this.selectedCategory;
+            const query = this.searchQuery.toLowerCase().trim();
+            const searchMatch = !query || 
+              project.title.toLowerCase().includes(query) ||
+              project.description.toLowerCase().includes(query) ||
+              (project.tags && project.tags.some(t => t.toLowerCase().includes(query)));
+
+            return categoryMatch && searchMatch;
+          }).sort((a, b) => {
+            if (this.sortBy === 'featured') {
+              return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+            } else if (this.sortBy === 'newest') {
+              return parseInt(b.year || 0) - parseInt(a.year || 0);
+            }
+            return 0;
+          });
+        }
+      };
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
+  </script>
+
+</body>
+</html>
